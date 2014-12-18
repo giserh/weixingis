@@ -160,6 +160,7 @@ func (c *MainController) Post() {
 		c.Ctx.ResponseWriter.WriteHeader(500)
 		return
 	}
+	beego.Info(string(data))
 	c.Ctx.WriteString(string(data))
 	return
 }
