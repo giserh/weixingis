@@ -7,6 +7,5 @@ import (
 
 func main() {
 	beego.Info("come in")
-
 	beego.Run()
 }

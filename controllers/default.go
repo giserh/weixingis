@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"sort"
 	"time"
 
@@ -32,7 +33,8 @@ type msgBaseReq struct {
 	MsgType      string
 }
 
-type msgBaseRes struct {
+type msgBaseResp struct {
+	XMLName      xml.Name `xml:xml`
 	ToUserName   string
 	FromUserName string
 	CreateTime   time.Duration
@@ -44,6 +46,7 @@ type msgBaseRes struct {
 type Request struct {
 	XMLName xml.Name `xml:xml`
 	msgBaseReq
+	Content    string
 	Location_X float32
 	Location_Y float32
 	Scale      int
@@ -55,28 +58,28 @@ type Request struct {
 //回复文本消息
 type TextResponse struct {
 	XMLName xml.Name `xml:"xml"`
-	msgBaseRes
+	msgBaseResp
 	Content string
 }
 
 //回复图片消息
 type ImageResponse struct {
 	XMLName xml.Name `xml:"xml"`
-	msgBaseRes
+	msgBaseResp
 	MediaId int64 //通过上传多媒体文件，得到的id。
 }
 
 //回复语音消息
 type VoiceResponse struct {
 	XMLName xml.Name `xml:"xml"`
-	msgBaseRes
+	msgBaseResp
 	MediaId int64 //通过上传多媒体文件，得到的id。
 }
 
 //回复视频消息
 type VideoResponse struct {
 	XMLName xml.Name `xml:"xml"`
-	msgBaseRes
+	msgBaseResp
 	MediaId     int64
 	Title       string
 	Description string
@@ -85,7 +88,7 @@ type VideoResponse struct {
 //回复音乐消息
 type MusicResponse struct {
 	XMLName xml.Name `xml:"xml"`
-	msgBaseRes
+	msgBaseResp
 	Title        string
 	Description  string
 	MusicURL     string
@@ -96,7 +99,7 @@ type MusicResponse struct {
 //回复图文消息
 type NewsResponse struct {
 	XMLName xml.Name `xml:"xml"`
-	msgBaseRes
+	msgBaseResp
 	ArticleCount int
 	Articles     []*item
 }
@@ -130,6 +133,54 @@ func (c *MainController) Get() {
 	}
 }
 
+func (c *MainController) Post() {
+	body, err := ioutil.ReadAll(c.Ctx.Request.Body)
+	if err != nil {
+		beego.Error(err)
+		c.Ctx.ResponseWriter.WriteHeader(500)
+		return
+	}
+	beego.Info(string(body))
+	var wreq *Request
+	if wreq, err = DecodeRequest(body); err != nil {
+		beego.Error(err)
+		c.Ctx.ResponseWriter.WriteHeader(500)
+		return
+	}
+	beego.Info(wreq.Content)
+	wresp, err := dealwith(wreq)
+	if err != nil {
+		beego.Error(err)
+		c.Ctx.ResponseWriter.WriteHeader(500)
+		return
+	}
+	data, err := wresp.Encode()
+	if err != nil {
+		beego.Error(err)
+		c.Ctx.ResponseWriter.WriteHeader(500)
+		return
+	}
+	c.Ctx.WriteString(string(data))
+	return
+}
+
+func dealwith(req *Request) (resp *TextResponse, err error) {
+	resp = &TextResponse{}
+	resp.CreateTime = time.Duration(time.Now().Unix())
+	resp.ToUserName = req.FromUserName
+	resp.FromUserName = req.ToUserName
+	resp.MsgType = MsgTypeText
+	beego.Info(req.MsgType)
+	beego.Info(req.Content)
+	if req.MsgType == MsgTypeText {
+		resp.Content = "Yes! You got it."
+		return resp, nil
+	} else {
+		resp.Content = "Not supported yet."
+	}
+	return resp, nil
+}
+
 func Signature(timestamp, nonce string) string {
 	strs := sort.StringSlice{TOKEN, timestamp, nonce}
 	sort.Strings(strs)
@@ -140,4 +191,25 @@ func Signature(timestamp, nonce string) string {
 	h := sha1.New()
 	h.Write([]byte(str))
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+func DecodeRequest(data []byte) (req *Request, err error) {
+	req = &Request{}
+	if err = xml.Unmarshal(data, req); err != nil {
+		return
+	}
+	req.CreateTime *= time.Second
+	return
+}
+
+func NewResponse() (resp *msgBaseResp) {
+	resp = &msgBaseResp{}
+	resp.CreateTime = time.Duration(time.Now().Unix())
+	return
+}
+
+func (resp msgBaseResp) Encode() (data []byte, err error) {
+	resp.CreateTime = time.Second
+	data, err = xml.Marshal(resp)
+	return
 }
