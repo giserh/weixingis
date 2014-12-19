@@ -209,7 +209,7 @@ func NewResponse() (resp *msgBaseResp) {
 	return
 }
 
-func (resp msgBaseResp) Encode() (data []byte, err error) {
+func (resp TextResponse) Encode() (data []byte, err error) {
 	resp.CreateTime = time.Second
 	data, err = xml.Marshal(resp)
 	return
