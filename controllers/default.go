@@ -216,8 +216,32 @@ func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
 			a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
 			resp.Articles = append(resp.Articles, &a)
 			resp.FuncFlag = 1
+		} else if strings.Trim(str, " ") == "arcgis" {
+			var resurl string
+			var a item
+			resurl = "https://raw.github.com/xzdbd/gisproduct/master/arcgisproduct/README.md"
+			a.Url = "https://github.com/xzdbd/gisproduct/blob/master/arcgisproduct/README.md"
+			beego.Info(resurl)
+			beego.Info(a.Url)
+			rsp, err := http.Get(resurl)
+			if err != nil {
+				beego.Info("error")
+				return nil, err
+			}
+			defer rsp.Body.Close()
+			if rsp.StatusCode == 404 {
+				beego.Info("could not found")
+				return resp, nil
+			}
+			resp.ArticleCount = 1
+			body, err := ioutil.ReadAll(rsp.Body)
+			beego.Info(string(body))
+			a.Description = string(body)
+			a.Title = req.Content
+			a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
+			resp.Articles = append(resp.Articles, &a)
+			resp.FuncFlag = 1
 		}
-
 	} else {
 		beego.Info("not supported")
 	}
