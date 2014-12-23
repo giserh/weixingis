@@ -23,6 +23,7 @@ const (
 	MsgTypeVideo            = "video"
 	MsgTypeLocation         = "location"
 	MsgTypeLink             = "link"
+	MsgTypeNews             = "news"
 	MsgTypeEvent            = "event"
 	MsgTypeEventSubscribe   = "subscribe"
 	MsgTeypEventUnsubscribe = "unsubscribe"
@@ -208,6 +209,7 @@ func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
 				beego.Info("could not found")
 				return resp, nil
 			}
+			resp.MsgType = MsgTypeNews
 			resp.ArticleCount = 1
 			body, err := ioutil.ReadAll(rsp.Body)
 			beego.Info(string(body))
