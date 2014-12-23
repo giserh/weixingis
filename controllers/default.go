@@ -5,7 +5,9 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/astaxie/beego"
@@ -148,7 +150,8 @@ func (c *MainController) Post() {
 		return
 	}
 	beego.Info(wreq.Content)
-	wresp, err := dealwith(wreq)
+	//wresp, err := dealwith(wreq)
+	wresp, err := responseNewsMsg(wreq)
 	if err != nil {
 		beego.Error(err)
 		c.Ctx.ResponseWriter.WriteHeader(500)
@@ -182,6 +185,42 @@ func dealwith(req *Request) (resp *TextResponse, err error) {
 	return resp, nil
 }
 
+func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
+	resp = NewNewsResponse()
+	resp.ToUserName = req.FromUserName
+	resp.FromUserName = req.ToUserName
+	if req.MsgType == MsgTypeText {
+		if strings.Trim(strings.ToLower(req.Content), " ") == "desktop" {
+			var resurl string
+			var a item
+			beego.Info(resurl)
+			beego.Info(a.Url)
+			rsp, err := http.Get(resurl)
+			if err != nil {
+				beego.Info("error")
+				return nil, err
+			}
+			defer rsp.Body.Close()
+			if rsp.StatusCode == 404 {
+				beego.Info("could not found")
+				return resp, nil
+			}
+			resp.ArticleCount = 1
+			body, err := ioutil.ReadAll(rsp.Body)
+			beego.Info(string(body))
+			a.Description = string(body)
+			a.Title = req.Content
+			a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
+			resp.Articles = append(resp.Articles, &a)
+			resp.FuncFlag = 1
+		}
+
+	} else {
+		beego.Info("not supported")
+	}
+	return resp, nil
+}
+
 func Signature(timestamp, nonce string) string {
 	strs := sort.StringSlice{TOKEN, timestamp, nonce}
 	sort.Strings(strs)
@@ -203,8 +242,20 @@ func DecodeRequest(data []byte) (req *Request, err error) {
 	return
 }
 
-func NewResponse() (resp *msgBaseResp) {
+func NewBaseResponse() (resp *msgBaseResp) {
 	resp = &msgBaseResp{}
+	resp.CreateTime = time.Duration(time.Now().Unix())
+	return
+}
+
+func NewTextResponse() (resp *TextResponse) {
+	resp = &TextResponse{}
+	resp.CreateTime = time.Duration(time.Now().Unix())
+	return
+}
+
+func NewNewsResponse() (resp *NewsResponse) {
+	resp = &NewsResponse{}
 	resp.CreateTime = time.Duration(time.Now().Unix())
 	return
 }
@@ -213,4 +264,14 @@ func (resp TextResponse) Encode() (data []byte, err error) {
 	resp.CreateTime = time.Second
 	data, err = xml.Marshal(resp)
 	return
+}
+
+func (resp NewsResponse) Encode() (data []byte, err error) {
+	resp.CreateTime = time.Second
+	data, err = xml.Marshal(resp)
+	return
+}
+
+type Response interface {
+	Encode()
 }
