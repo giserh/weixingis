@@ -193,6 +193,8 @@ func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
 		if strings.Trim(strings.ToLower(req.Content), " ") == "desktop" {
 			var resurl string
 			var a item
+			resurl = "https://raw.github.com/xzdbd/gisproduct/master/arcgisproduct/" + strings.Trim(strings.ToLower(strs[0]), " ") + ".md"
+			a.Url = "https://github.com/xzdbd/gisproduct/blob/master/arcgisproduct/" + strings.Trim(strings.ToLower(strs[0]), " ") + ".md"
 			beego.Info(resurl)
 			beego.Info(a.Url)
 			rsp, err := http.Get(resurl)
