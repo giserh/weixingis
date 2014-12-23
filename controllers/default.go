@@ -190,11 +190,12 @@ func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
 	resp.ToUserName = req.FromUserName
 	resp.FromUserName = req.ToUserName
 	if req.MsgType == MsgTypeText {
-		if strings.Trim(strings.ToLower(req.Content), " ") == "desktop" {
+		str := strings.ToLower(req.Content)
+		if strings.Trim(str, " ") == "desktop" {
 			var resurl string
 			var a item
-			resurl = "https://raw.github.com/xzdbd/gisproduct/master/arcgisproduct/" + strings.Trim(strings.ToLower(strs[0]), " ") + ".md"
-			a.Url = "https://github.com/xzdbd/gisproduct/blob/master/arcgisproduct/" + strings.Trim(strings.ToLower(strs[0]), " ") + ".md"
+			resurl = "https://raw.github.com/xzdbd/gisproduct/master/arcgisproduct/" + strings.Trim(str, " ") + ".md"
+			a.Url = "https://github.com/xzdbd/gisproduct/blob/master/arcgisproduct/" + strings.Trim(str, " ") + ".md"
 			beego.Info(resurl)
 			beego.Info(a.Url)
 			rsp, err := http.Get(resurl)
