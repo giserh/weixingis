@@ -152,38 +152,105 @@ func (c *MainController) Post() {
 	}
 	beego.Info(wreq.Content)
 	//wresp, err := dealwith(wreq)
-	wresp, err := responseNewsMsg(wreq)
+	//wresp, err := responseNewsMsg(wreq)
+	//if err != nil {
+	//	beego.Error(err)
+	//	c.Ctx.ResponseWriter.WriteHeader(500)
+	//	return
+	//}
+	//data, err := wresp.Encode()
+	//if err != nil {
+	//	beego.Error(err)
+	//	c.Ctx.ResponseWriter.WriteHeader(500)
+	//	return
+	//}
+	//beego.Info(string(data))
+	str, err := dealwith(wreq)
 	if err != nil {
 		beego.Error(err)
 		c.Ctx.ResponseWriter.WriteHeader(500)
 		return
 	}
-	data, err := wresp.Encode()
-	if err != nil {
-		beego.Error(err)
-		c.Ctx.ResponseWriter.WriteHeader(500)
-		return
-	}
-	beego.Info(string(data))
-	c.Ctx.WriteString(string(data))
+	beego.Info(str)
+	c.Ctx.WriteString(str)
 	return
 }
 
-func dealwith(req *Request) (resp *TextResponse, err error) {
-	resp = &TextResponse{}
-	resp.CreateTime = time.Duration(time.Now().Unix())
+func dealwith(req *Request) (str string, err error) {
+	content := strings.Trim(strings.ToLower(req.Content), " ")
+	if req.MsgType == MsgTypeText {
+		switch content {
+		case "arcgis", "arcgisproduct":
+			responseProduct(req, "README")
+		case "desktop":
+			responseProduct(req, "desktop")
+		case "server":
+			responseProduct(req, "server")
+		case "engine":
+			responseProduct(req, "engine")
+		default:
+			responseChat(req, content)
+		}
+	} else if req.MsgType == MsgTypeImage {
+
+	} else if req.MsgType == MsgTypeVoice {
+
+	} else if req.MsgType == MsgTypeVideo {
+
+	} else if req.MsgType == MsgTypeLocation {
+
+	} else if req.MsgType == MsgTypeLink {
+
+	}
+	return
+}
+
+//回复产品信息
+func responseProduct(req *Request, product string) (str string, err error) {
+	resp := NewNewsResponse()
 	resp.ToUserName = req.FromUserName
 	resp.FromUserName = req.ToUserName
-	resp.MsgType = MsgTypeText
-	beego.Info(req.MsgType)
-	beego.Info(req.Content)
-	if req.MsgType == MsgTypeText {
-		resp.Content = "Yes! You got it."
-		return resp, nil
+	var resurl string
+	var a item
+	resurl = "https://raw.github.com/xzdbd/gisproduct/master/arcgisproduct/" + strings.Trim(product, " ") + ".md"
+	a.Url = "https://github.com/xzdbd/gisproduct/blob/master/arcgisproduct/" + strings.Trim(product, " ") + ".md"
+	rsp, err := http.Get(resurl)
+	if err != nil {
+		beego.Info("error:" + err.Error())
+		resp := NewTextResponse()
+		resp.ToUserName = req.FromUserName
+		resp.FromUserName = req.ToUserName
+		resp.Content = "不存在该产品"
+	} else if rsp.StatusCode == 404 {
+		beego.Info("error:" + err.Error())
+		resp := NewTextResponse()
+		resp.ToUserName = req.FromUserName
+		resp.FromUserName = req.ToUserName
+		resp.Content = "找不到你要查询的产品"
 	} else {
-		resp.Content = "Not supported yet."
+		resp.ArticleCount = 1
+		body, err := ioutil.ReadAll(rsp.Body)
+		if err != nil {
+			beego.Error(err)
+		}
+		a.Description = string(body)
+		a.Title = req.Content
+		//a.PicUrl = "http://bbs.gocn.im/static/image/common/logo.png"
+		resp.Articles = append(resp.Articles, &a)
+		resp.FuncFlag = 1
 	}
-	return resp, nil
+	data, err := resp.Encode()
+	if err != nil {
+		return
+	}
+	str = string(data)
+	//defer rsp.Body.Close()
+	return
+}
+
+//回复聊天信息
+func responseChat(req *Request, content string) (str string, err error) {
+	return
 }
 
 func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
