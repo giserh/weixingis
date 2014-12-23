@@ -102,8 +102,8 @@ type MusicResponse struct {
 type NewsResponse struct {
 	XMLName xml.Name `xml:"xml"`
 	msgBaseResp
-	ArticleCount int
-	Articles     []*item
+	ArticleCount int     `xml:",omitempty"`
+	Articles     []*item `xml:"Articles>item,omitempty"`
 }
 
 type item struct {
