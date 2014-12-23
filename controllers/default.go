@@ -181,13 +181,13 @@ func dealwith(req *Request) (str string, err error) {
 	if req.MsgType == MsgTypeText {
 		switch content {
 		case "arcgis", "arcgisproduct":
-			responseProduct(req, "README")
+			str, _ = responseProduct(req, "README")
 		case "desktop":
-			responseProduct(req, "desktop")
+			str, _ = responseProduct(req, "desktop")
 		case "server":
-			responseProduct(req, "server")
+			str, _ = responseProduct(req, "server")
 		case "engine":
-			responseProduct(req, "engine")
+			str, _ = responseProduct(req, "engine")
 		default:
 			responseChat(req, content)
 		}
