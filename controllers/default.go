@@ -209,7 +209,6 @@ func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
 				beego.Info("could not found")
 				return resp, nil
 			}
-			resp.MsgType = MsgTypeNews
 			resp.ArticleCount = 1
 			body, err := ioutil.ReadAll(rsp.Body)
 			beego.Info(string(body))
@@ -286,6 +285,7 @@ func NewTextResponse() (resp *TextResponse) {
 func NewNewsResponse() (resp *NewsResponse) {
 	resp = &NewsResponse{}
 	resp.CreateTime = time.Duration(time.Now().Unix())
+	resp.MsgType = MsgTypeNews
 	return
 }
 
