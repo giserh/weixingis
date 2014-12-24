@@ -403,12 +403,11 @@ func UnicodeIndex(str, substr string) int {
 	return result
 }
 
-//获取产品信息简介，用于图文信息的decription，截取到第二个#号
+//获取产品信息简介，用于图文信息的decription，截取到第一个句号
 func getProductIntro(s string) (subStr string) {
-	s = strings.Replace(s, "#", "", 1)
-	l := UnicodeIndex(s, "#")
+	l := UnicodeIndex(s, "。")
 	if l >= 0 {
-		subStr = SubString(s, 0, l)
+		subStr = SubString(s, 0, l+1)
 	} else {
 		subStr = s
 	}
