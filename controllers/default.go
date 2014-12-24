@@ -389,10 +389,25 @@ func SubString(s string, begin, length int) (substr string) {
 	return string(rs[begin:end])
 }
 
+func UnicodeIndex(str, substr string) int {
+	// 子串在字符串的字节位置
+	result := strings.Index(str, substr)
+	if result >= 0 {
+		// 获得子串之前的字符串并转换成[]byte
+		prefix := []byte(str)[0:result]
+		// 将子串之前的字符串转换成[]rune
+		rs := []rune(string(prefix))
+		// 获得子串之前的字符串的长度，便是子串在字符串的字符位置
+		result = len(rs)
+	}
+
+	return result
+}
+
 //获取产品信息简介，用于图文信息的decription，截取到第二个#号
 func getProductIntro(s string) (subStr string) {
 	s = strings.Replace(s, "#", " ", 1)
-	l := strings.Index(s, "#")
+	l := UnicodeIndex(s, "#")
 	subStr = SubString(s, 0, l)
 	return
 
