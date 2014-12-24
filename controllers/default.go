@@ -233,7 +233,7 @@ func responseProduct(req *Request, product string) (str string, err error) {
 		if err != nil {
 			beego.Error(err)
 		}
-		a.Description = SubString(string(body), 1, 100)
+		a.Description = getProductIntro(string(body))
 		a.Title = req.Content
 		a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
 		resp.Articles = append(resp.Articles, &a)
@@ -368,9 +368,9 @@ func (resp NewsResponse) Encode() (data []byte, err error) {
 	return
 }
 
-func SubString(str string, begin, length int) (substr string) {
+func SubString(s string, begin, length int) (substr string) {
 	// 将字符串的转换成[]rune
-	rs := []rune(str)
+	rs := []rune(s)
 	lth := len(rs)
 
 	// 简单的越界判断
@@ -387,6 +387,15 @@ func SubString(str string, begin, length int) (substr string) {
 
 	// 返回子串
 	return string(rs[begin:end])
+}
+
+//获取产品信息简介，用于图文信息的decription，截取到第二个#号
+func getProductIntro(s string) (subStr string) {
+	s = strings.Replace(s, "#", " ", 1)
+	l := strings.Index(s, "#")
+	subStr = SubString(s, 0, l)
+	return
+
 }
 
 type Response interface {
