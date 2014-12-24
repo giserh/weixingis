@@ -167,18 +167,18 @@ func dealwith(req *Request) (str string, err error) {
 		case "engine":
 			str, _ = responseProduct(req, "engine")
 		default:
-			responseChat(req, content)
+			str, _ = responseChat(req, content)
 		}
 	} else if req.MsgType == MsgTypeImage {
-		responseChat(req, content)
+		str, _ = responseChat(req, content)
 	} else if req.MsgType == MsgTypeVoice {
-		responseChat(req, content)
+		str, _ = responseChat(req, content)
 	} else if req.MsgType == MsgTypeVideo {
-		responseChat(req, content)
+		str, _ = responseChat(req, content)
 	} else if req.MsgType == MsgTypeLocation {
-		responseChat(req, content)
+		str, _ = responseChat(req, content)
 	} else if req.MsgType == MsgTypeLink {
-
+		str, _ = responseChat(req, content)
 	}
 	return
 }
@@ -231,7 +231,7 @@ func responseChat(req *Request, content string) (str string, err error) {
 	resp := NewTextResponse()
 	resp.FromUserName = req.ToUserName
 	resp.ToUserName = req.FromUserName
-	resp.Content = "感谢订阅温雷萨GIS官方微信，现在你可以通过回复arcgis查看所有arcgis产品信息，并可通过输入产品关键词获取产品详情啦！例如：desktop"
+	resp.Content = "感谢订阅温雷萨GIS官方微信，现在你可以通过回复arcgis查看所有ArcGIS产品信息，并可通过输入产品关键词获取产品详情啦！例如：desktop"
 	data, err := resp.Encode()
 	if err != nil {
 		return
