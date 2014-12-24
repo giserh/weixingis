@@ -385,7 +385,6 @@ func SubString(s string, begin, length int) (substr string) {
 	if end > lth {
 		end = lth
 	}
-
 	// 返回子串
 	return string(rs[begin:end])
 }
@@ -401,17 +400,19 @@ func UnicodeIndex(str, substr string) int {
 		// 获得子串之前的字符串的长度，便是子串在字符串的字符位置
 		result = len(rs)
 	}
-
 	return result
 }
 
 //获取产品信息简介，用于图文信息的decription，截取到第二个#号
 func getProductIntro(s string) (subStr string) {
-	s = strings.Replace(s, "#", " ", 1)
+	s = strings.Replace(s, "#", "", 1)
 	l := UnicodeIndex(s, "#")
-	subStr = SubString(s, 0, l)
+	if l >= 0 {
+		subStr = SubString(s, 0, l)
+	} else {
+		subStr = s
+	}
 	return
-
 }
 
 type Response interface {
