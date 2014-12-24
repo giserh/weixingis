@@ -169,6 +169,8 @@ func dealwith(req *Request) (str string, err error) {
 		default:
 			str, _ = responseChat(req, content)
 		}
+	} else if req.MsgType == MsgTypeEvent {
+		str, _ = responseChat(req, content)
 	} else if req.MsgType == MsgTypeImage {
 		str, _ = responseChat(req, content)
 	} else if req.MsgType == MsgTypeVoice {
