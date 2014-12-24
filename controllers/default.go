@@ -306,7 +306,7 @@ func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
 			beego.Info(string(body))
 			a.Description = string(body)
 			a.Title = req.Content
-			a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
+			a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop.png?raw=true"
 			resp.Articles = append(resp.Articles, &a)
 			resp.FuncFlag = 1
 		}
@@ -346,6 +346,7 @@ func NewBaseResponse() (resp *msgBaseResp) {
 func NewTextResponse() (resp *TextResponse) {
 	resp = &TextResponse{}
 	resp.CreateTime = time.Duration(time.Now().Unix())
+	resp.MsgType = MsgTypeText
 	return
 }
 
