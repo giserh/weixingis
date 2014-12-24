@@ -342,10 +342,6 @@ func getProductIntro(s string) (subStr string) {
 	return
 }
 
-func emoji(int hexEmoji) {
-	string
-}
-
 type Response interface {
 	Encode()
 }
