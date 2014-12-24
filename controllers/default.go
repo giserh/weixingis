@@ -43,7 +43,6 @@ type msgBaseResp struct {
 	CreateTime   time.Duration
 	MsgType      string
 	FuncFlag     int // 位0x0001被标志时，星标刚收到的消息
-
 }
 
 type Request struct {
@@ -121,14 +120,9 @@ type MainController struct {
 
 func (c *MainController) Get() {
 	signature := c.Input().Get("signature")
-	beego.Info(signature)
 	timestamp := c.Input().Get("timestamp")
-	beego.Info(timestamp)
 	nonce := c.Input().Get("nonce")
-	beego.Info(nonce)
 	echostr := c.Input().Get("echostr")
-	beego.Info(echostr)
-	beego.Info(Signature(timestamp, nonce))
 	if Signature(timestamp, nonce) == signature {
 		c.Ctx.WriteString(echostr)
 	} else {
@@ -143,28 +137,12 @@ func (c *MainController) Post() {
 		c.Ctx.ResponseWriter.WriteHeader(500)
 		return
 	}
-	beego.Info(string(body))
 	var wreq *Request
 	if wreq, err = DecodeRequest(body); err != nil {
 		beego.Error(err)
 		c.Ctx.ResponseWriter.WriteHeader(500)
 		return
 	}
-	beego.Info(wreq.Content)
-	//wresp, err := dealwith(wreq)
-	//wresp, err := responseNewsMsg(wreq)
-	//if err != nil {
-	//	beego.Error(err)
-	//	c.Ctx.ResponseWriter.WriteHeader(500)
-	//	return
-	//}
-	//data, err := wresp.Encode()
-	//if err != nil {
-	//	beego.Error(err)
-	//	c.Ctx.ResponseWriter.WriteHeader(500)
-	//	return
-	//}
-	//beego.Info(string(data))
 	str, err := dealwith(wreq)
 	if err != nil {
 		beego.Error(err)
@@ -192,13 +170,13 @@ func dealwith(req *Request) (str string, err error) {
 			responseChat(req, content)
 		}
 	} else if req.MsgType == MsgTypeImage {
-
+		responseChat(req, content)
 	} else if req.MsgType == MsgTypeVoice {
-
+		responseChat(req, content)
 	} else if req.MsgType == MsgTypeVideo {
-
+		responseChat(req, content)
 	} else if req.MsgType == MsgTypeLocation {
-
+		responseChat(req, content)
 	} else if req.MsgType == MsgTypeLink {
 
 	}
@@ -234,7 +212,7 @@ func responseProduct(req *Request, product string) (str string, err error) {
 			beego.Error(err)
 		}
 		a.Description = getProductIntro(string(body))
-		a.Title = req.Content
+		a.Title = "产品查询结果： " + req.Content
 		a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop.png?raw=true"
 		resp.Articles = append(resp.Articles, &a)
 		resp.FuncFlag = 1
@@ -250,70 +228,16 @@ func responseProduct(req *Request, product string) (str string, err error) {
 
 //回复聊天信息
 func responseChat(req *Request, content string) (str string, err error) {
-	return
-}
-
-func responseNewsMsg(req *Request) (resp *NewsResponse, err error) {
-	resp = NewNewsResponse()
-	resp.ToUserName = req.FromUserName
+	resp := NewTextResponse()
 	resp.FromUserName = req.ToUserName
-	if req.MsgType == MsgTypeText {
-		str := strings.ToLower(req.Content)
-		if strings.Trim(str, " ") == "desktop" {
-			var resurl string
-			var a item
-			resurl = "https://raw.github.com/xzdbd/gisproduct/master/arcgisproduct/" + strings.Trim(str, " ") + ".md"
-			a.Url = "https://github.com/xzdbd/gisproduct/blob/master/arcgisproduct/" + strings.Trim(str, " ") + ".md"
-			beego.Info(resurl)
-			beego.Info(a.Url)
-			rsp, err := http.Get(resurl)
-			if err != nil {
-				beego.Info("error")
-				return nil, err
-			}
-			defer rsp.Body.Close()
-			if rsp.StatusCode == 404 {
-				beego.Info("could not found")
-				return resp, nil
-			}
-			resp.ArticleCount = 1
-			body, err := ioutil.ReadAll(rsp.Body)
-			beego.Info(string(body))
-			a.Description = string(body)
-			a.Title = req.Content
-			a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
-			resp.Articles = append(resp.Articles, &a)
-			resp.FuncFlag = 1
-		} else if strings.Trim(str, " ") == "arcgis" {
-			var resurl string
-			var a item
-			resurl = "https://raw.github.com/xzdbd/gisproduct/master/arcgisproduct/README.md"
-			a.Url = "https://github.com/xzdbd/gisproduct/blob/master/arcgisproduct/README.md"
-			beego.Info(resurl)
-			beego.Info(a.Url)
-			rsp, err := http.Get(resurl)
-			if err != nil {
-				beego.Info("error")
-				return nil, err
-			}
-			defer rsp.Body.Close()
-			if rsp.StatusCode == 404 {
-				beego.Info("could not found")
-				return resp, nil
-			}
-			resp.ArticleCount = 1
-			body, err := ioutil.ReadAll(rsp.Body)
-			beego.Info(string(body))
-			a.Description = string(body)
-			a.Title = req.Content
-			a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop.png?raw=true"
-			resp.Articles = append(resp.Articles, &a)
-			resp.FuncFlag = 1
-		}
-	} else {
-		beego.Info("not supported")
+	resp.ToUserName = req.FromUserName
+	resp.Content = "感谢订阅温雷萨GIS官方微信，现在你可以通过回复arcgis查看所有arcgis产品信息，并可通过输入产品关键词获取产品详情啦！例如：desktop"
+	data, err := resp.Encode()
+	if err != nil {
+		return
 	}
-	return resp, nil
+	str = string(data)
+	return
 }
 
 func Signature(timestamp, nonce string) string {
