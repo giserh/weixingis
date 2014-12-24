@@ -233,7 +233,7 @@ func responseChat(req *Request, content string) (str string, err error) {
 	resp := NewTextResponse()
 	resp.FromUserName = req.ToUserName
 	resp.ToUserName = req.FromUserName
-	resp.Content = "感谢订阅温雷萨GIS官方微信，现在你可以通过回复arcgis查看所有ArcGIS产品信息，并可通过输入产品关键词获取产品详情啦！例如：desktop"
+	resp.Content = "感谢订阅温雷萨GIS官方微信\U0001f606，现在你可以通过回复arcgis查看所有ArcGIS产品信息，并可通过输入产品关键词获取产品详情啦！例如：desktop"
 	data, err := resp.Encode()
 	if err != nil {
 		return
@@ -295,6 +295,7 @@ func (resp NewsResponse) Encode() (data []byte, err error) {
 	return
 }
 
+//截取中文字符串
 func SubString(s string, begin, length int) (substr string) {
 	// 将字符串的转换成[]rune
 	rs := []rune(s)
@@ -315,6 +316,7 @@ func SubString(s string, begin, length int) (substr string) {
 	return string(rs[begin:end])
 }
 
+//处理中文的返回字符串子串位置
 func UnicodeIndex(str, substr string) int {
 	// 子串在字符串的字节位置
 	result := strings.Index(str, substr)
@@ -338,6 +340,10 @@ func getProductIntro(s string) (subStr string) {
 		subStr = s
 	}
 	return
+}
+
+func emoji(int hexEmoji) {
+	string
 }
 
 type Response interface {
