@@ -235,7 +235,7 @@ func responseProduct(req *Request, product string) (str string, err error) {
 		}
 		a.Description = getProductIntro(string(body))
 		a.Title = req.Content
-		a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
+		a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop.png?raw=true"
 		resp.Articles = append(resp.Articles, &a)
 		resp.FuncFlag = 1
 	}
