@@ -233,9 +233,9 @@ func responseProduct(req *Request, product string) (str string, err error) {
 		if err != nil {
 			beego.Error(err)
 		}
-		a.Description = string(body)
+		a.Description = SubString(string(body), 1, 100)
 		a.Title = req.Content
-		//a.PicUrl = "http://bbs.gocn.im/static/image/common/logo.png"
+		a.PicUrl = "https://github.com/xzdbd/gisproduct/raw/master/images/desktop1.png?raw=true"
 		resp.Articles = append(resp.Articles, &a)
 		resp.FuncFlag = 1
 	}
@@ -366,6 +366,27 @@ func (resp NewsResponse) Encode() (data []byte, err error) {
 	resp.CreateTime = time.Second
 	data, err = xml.Marshal(resp)
 	return
+}
+
+func SubString(str string, begin, length int) (substr string) {
+	// 将字符串的转换成[]rune
+	rs := []rune(str)
+	lth := len(rs)
+
+	// 简单的越界判断
+	if begin < 0 {
+		begin = 0
+	}
+	if begin >= lth {
+		begin = lth
+	}
+	end := begin + length
+	if end > lth {
+		end = lth
+	}
+
+	// 返回子串
+	return string(rs[begin:end])
 }
 
 type Response interface {
